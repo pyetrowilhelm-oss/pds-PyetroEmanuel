@@ -11,9 +11,7 @@ def conectar():
 
 
 # ---------------------------------------------------------------
-# ROTAS DE DONOS - CODIGO DE REFERENCIA
-# Estas rotas ja estao prontas. Use elas como modelo para escrever
-# as rotas de pets mais abaixo.
+# ROTAS DE DONOS
 # ---------------------------------------------------------------
 
 
@@ -130,24 +128,7 @@ def remover_dono(dono_id):
 
 
 # ---------------------------------------------------------------
-# ROTAS DE PETS - SUA PARTE
-#
-# Escreva abaixo as rotas de pets seguindo o mesmo padrao usado
-# nas rotas de donos. O contrato de cada rota (URL, metodo, corpo
-# da requisicao e resposta esperada) esta no README.md.
-#
-# 1. GET    /pets              lista todos os pets com o nome do dono
-# 2. GET    /pets/<id>         busca um pet pelo id
-# 3. POST   /pets              cadastra um novo pet
-# 4. PUT    /pets/<id>         atualiza um pet
-# 5. DELETE /pets/<id>         remove um pet
-#
-# Atencao nas duas rotas que valem ponto extra de atencao:
-# - o GET /pets precisa usar JOIN para trazer o nome do dono
-# - o GET /pets aceita o filtro opcional ?dono_id=
-# ---------------------------------------------------------------
-# ---------------------------------------------------------------
-# ROTAS DE PETS - SUA PARTE
+# ROTAS DE PETS
 # ---------------------------------------------------------------
 
 
@@ -158,15 +139,13 @@ def listar_pets():
     conexao = conectar()
     cursor = conexao.cursor()
 
-    # Query base com INNER JOIN para obter o nome_dono
     sql = """
-        SELECT pets.id, pets.nome, pets.especie, pets.dono_id, donos.nome AS nome_dono
+        SELECT pets.id, pets.nome, pets.especie, pets.idade, pets.dono_id, donos.nome AS dono_nome
         FROM pets
-        JOIN donos ON pets.dono_id = donos.id
+        INNER JOIN donos ON pets.dono_id = donos.id
     """
     parametros = []
 
-    # Aplica o filtro opcional por ?dono_id= caso enviado na URL
     if dono_id:
         sql += " WHERE pets.dono_id = ?"
         parametros.append(dono_id)
@@ -181,8 +160,9 @@ def listar_pets():
             "id": linha[0],
             "nome": linha[1],
             "especie": linha[2],
-            "dono_id": linha[3],
-            "nome_dono": linha[4]
+            "idade": linha[3],
+            "dono_id": linha[4],
+            "dono_nome": linha[5]
         })
 
     return jsonify(pets)
@@ -194,9 +174,9 @@ def buscar_pet(pet_id):
     cursor = conexao.cursor()
     cursor.execute(
         """
-        SELECT pets.id, pets.nome, pets.especie, pets.dono_id, donos.nome AS nome_dono
+        SELECT pets.id, pets.nome, pets.especie, pets.idade, pets.dono_id, donos.nome AS dono_nome
         FROM pets
-        JOIN donos ON pets.dono_id = donos.id
+        INNER JOIN donos ON pets.dono_id = donos.id
         WHERE pets.id = ?
         """,
         (pet_id,)
@@ -211,8 +191,9 @@ def buscar_pet(pet_id):
         "id": linha[0],
         "nome": linha[1],
         "especie": linha[2],
-        "dono_id": linha[3],
-        "nome_dono": linha[4]
+        "idade": linha[3],
+        "dono_id": linha[4],
+        "dono_nome": linha[5]
     }
 
     return jsonify(pet)
@@ -222,21 +203,15 @@ def buscar_pet(pet_id):
 def criar_pet():
     dados = request.json
 
-    if not dados or "nome" not in dados or "especie" not in dados or "dono_id" not in dados:
-        return jsonify({"erro": "Informe nome, especie e dono_id"}), 400
+    if not dados or "nome" not in dados or "especie" not in dados or "idade" not in dados or "dono_id" not in dados:
+        return jsonify({"erro": "Informe nome, especie, idade e dono_id"}), 400
 
     conexao = conectar()
     cursor = conexao.cursor()
 
-    # Valida se o dono informado realmente existe antes de associar
-    cursor.execute("SELECT id FROM donos WHERE id = ?", (dados["dono_id"],))
-    if cursor.fetchone() is None:
-        conexao.close()
-        return jsonify({"erro": "Dono informado nao existe"}), 400
-
     cursor.execute(
-        "INSERT INTO pets (nome, especie, dono_id) VALUES (?, ?, ?)",
-        (dados["nome"], dados["especie"], dados["dono_id"])
+        "INSERT INTO pets (nome, especie, idade, dono_id) VALUES (?, ?, ?, ?)",
+        (dados["nome"], dados["especie"], dados["idade"], dados["dono_id"])
     )
     conexao.commit()
     novo_id = cursor.lastrowid
@@ -246,6 +221,7 @@ def criar_pet():
         "id": novo_id,
         "nome": dados["nome"],
         "especie": dados["especie"],
+        "idade": dados["idade"],
         "dono_id": dados["dono_id"]
     }
 
@@ -256,21 +232,15 @@ def criar_pet():
 def atualizar_pet(pet_id):
     dados = request.json
 
-    if not dados or "nome" not in dados or "especie" not in dados or "dono_id" not in dados:
-        return jsonify({"erro": "Informe nome, especie e dono_id"}), 400
+    if not dados or "nome" not in dados or "especie" not in dados or "idade" not in dados or "dono_id" not in dados:
+        return jsonify({"erro": "Informe nome, especie, idade e dono_id"}), 400
 
     conexao = conectar()
     cursor = conexao.cursor()
 
-    # Valida se o dono existe
-    cursor.execute("SELECT id FROM donos WHERE id = ?", (dados["dono_id"],))
-    if cursor.fetchone() is None:
-        conexao.close()
-        return jsonify({"erro": "Dono informado nao existe"}), 400
-
     cursor.execute(
-        "UPDATE pets SET nome = ?, especie = ?, dono_id = ? WHERE id = ?",
-        (dados["nome"], dados["especie"], dados["dono_id"], pet_id)
+        "UPDATE pets SET nome = ?, especie = ?, idade = ?, dono_id = ? WHERE id = ?",
+        (dados["nome"], dados["especie"], dados["idade"], dados["dono_id"], pet_id)
     )
     conexao.commit()
     alterados = cursor.rowcount
@@ -283,6 +253,7 @@ def atualizar_pet(pet_id):
         "id": pet_id,
         "nome": dados["nome"],
         "especie": dados["especie"],
+        "idade": dados["idade"],
         "dono_id": dados["dono_id"]
     }
 
@@ -302,6 +273,7 @@ def remover_pet(pet_id):
         return jsonify({"erro": "Pet nao encontrado"}), 404
 
     return jsonify({"mensagem": "Pet removido com sucesso"})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
