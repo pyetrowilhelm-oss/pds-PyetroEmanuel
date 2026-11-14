@@ -3,8 +3,9 @@
 Projeto da disciplina de Programacao no Desenvolvimento de Sistemas.
 
 Este repositorio vai crescer durante todo o trimestre. Comecamos com uma API
-simples usando Flask e sqlite3, e ao longo das aulas ela vai ganhar ORM,
-separacao em camadas, login e, no final, um front-end em React.
+simples usando Flask e SQLite. Nesta aula, o acesso ao banco passa a usar o
+Flask-SQLAlchemy (ORM), e nas proximas aulas o projeto ganha separacao em
+camadas, login e, no final, um front-end em React.
 
 **Nao apague nem recomece o projeto a cada aula.** O codigo evolui aqui dentro.
 
@@ -43,9 +44,9 @@ O servidor sobe em `http://localhost:5000`.
 Abra o arquivo `backend/requisicoes.http` e clique em **Send Request** acima de
 cada requisicao. A resposta aparece ao lado.
 
-O arquivo `petshop.db` nao vai para o GitHub, ele esta no `.gitignore`. Sempre
-que voce abrir o projeto em um lugar novo, rode `python criar_banco.py` para
-recriar o banco com os dados de exemplo.
+O banco `instance/petshop.db` nao vai para o GitHub, pois a pasta `instance/`
+esta no `.gitignore`. Sempre que voce abrir o projeto em um lugar novo, rode
+`python criar_banco.py` para criar o banco e inserir os dados de exemplo.
 
 ## Modelo de dados
 
@@ -54,16 +55,16 @@ recriar o banco com os dados de exemplo.
 | campo    | tipo    | observacao     |
 |----------|---------|----------------|
 | id       | INTEGER | chave primaria |
-| nome     | TEXT    | obrigatorio    |
-| telefone | TEXT    | obrigatorio    |
+| nome     | VARCHAR(100) | obrigatorio    |
+| telefone | VARCHAR(20)  | obrigatorio    |
 
 **pets**
 
 | campo   | tipo    | observacao                      |
 |---------|---------|---------------------------------|
 | id      | INTEGER | chave primaria                  |
-| nome    | TEXT    | obrigatorio                     |
-| especie | TEXT    | obrigatorio                     |
+| nome    | VARCHAR(100) | obrigatorio                     |
+| especie | VARCHAR(50)  | obrigatorio                     |
 | idade   | INTEGER | obrigatorio                     |
 | dono_id | INTEGER | chave estrangeira para donos.id |
 
@@ -74,7 +75,8 @@ As rotas de **donos** e **pets** estao implementadas no `app.py`.
 ### GET /pets
 
 Lista todos os pets. A resposta traz o **nome do dono**, e nao apenas o
-`dono_id`. Para isso voce precisa usar JOIN na consulta.
+`dono_id`. O relacionamento do ORM fornece esse nome sem um JOIN escrito
+manualmente na rota.
 
 Resposta `200`:
 
@@ -124,6 +126,9 @@ Resposta `201`: o pet criado, com o `id` gerado pelo banco.
 
 Resposta `400`: `{"erro": "Informe nome, especie, idade e dono_id"}`
 
+Se o `dono_id` nao existir, a resposta e `404` com
+`{"erro": "Dono nao encontrado"}`.
+
 ### PUT /pets/{id}
 
 Atualiza um pet. Recebe os mesmos campos do POST.
@@ -146,7 +151,7 @@ Quando terminar, salve o trabalho no GitHub:
 
 ```
 git add .
-git commit -m "aula01: api base"
+git commit -m "aula02: api com orm"
 git push
 ```
 
