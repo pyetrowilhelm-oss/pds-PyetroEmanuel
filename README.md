@@ -69,8 +69,7 @@ recriar o banco com os dados de exemplo.
 
 ## Contrato das rotas
 
-As rotas de **donos** ja estao prontas no `app.py`. Use elas como modelo.
-As rotas de **pets** sao a sua tarefa.
+As rotas de **donos** e **pets** estao implementadas no `app.py`.
 
 ### GET /pets
 

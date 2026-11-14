@@ -27,9 +27,8 @@ DELETE http://localhost:5000/donos/3
 
 
 ### ----------------------------------------------------------
-### DAQUI PARA BAIXO SAO AS ROTAS QUE VOCE VAI ESCREVER
-### Elas so vao funcionar depois que voce criar as rotas de pets
-### no arquivo app.py
+### ROTAS DE PETS
+### As rotas abaixo ja estao implementadas no arquivo app.py
 ### ----------------------------------------------------------
 
 ### Listar todos os pets (com o nome do dono)
