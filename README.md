@@ -124,10 +124,10 @@ Corpo da requisicao:
 
 Resposta `201`: o pet criado, com o `id` gerado pelo banco.
 
-Resposta `400`: `{"erro": "Informe nome, especie, idade e dono_id"}`
-
-Se o `dono_id` nao existir, a resposta e `404` com
-`{"erro": "Dono nao encontrado"}`.
+Resposta `400`: `{"erros": ["..."]}` com a lista dos campos que precisam
+ser corrigidos. Nome e especie devem ter texto; idade deve ser um inteiro
+maior ou igual a zero; `dono_id` deve ser inteiro e apontar para um dono
+existente.
 
 ### PUT /pets/{id}
 

@@ -74,7 +74,7 @@ Content-Type: application/json
 ### Remover um pet
 DELETE http://localhost:5000/pets/5
 
-### Tentar cadastrar um pet com um dono que nao existe (deve retornar 404)
+### Tentar cadastrar um pet com um dono que nao existe (deve retornar 400)
 POST http://localhost:5000/pets
 Content-Type: application/json
 
@@ -83,4 +83,48 @@ Content-Type: application/json
     "especie": "cachorro",
     "idade": 2,
     "dono_id": 999
+}
+
+### Validacao: idade deve ser um numero inteiro
+POST http://localhost:5000/pets
+Content-Type: application/json
+
+{
+    "nome": "Bidu",
+    "especie": "cachorro",
+    "idade": "dois",
+    "dono_id": 1
+}
+
+### Validacao: idade nao pode ser negativa
+POST http://localhost:5000/pets
+Content-Type: application/json
+
+{
+    "nome": "Bidu",
+    "especie": "cachorro",
+    "idade": -2,
+    "dono_id": 1
+}
+
+### Validacao: dono_id precisa existir
+POST http://localhost:5000/pets
+Content-Type: application/json
+
+{
+    "nome": "Bidu",
+    "especie": "cachorro",
+    "idade": 2,
+    "dono_id": 999
+}
+
+### Validacao: nome nao pode ficar vazio
+POST http://localhost:5000/pets
+Content-Type: application/json
+
+{
+    "nome": "   ",
+    "especie": "cachorro",
+    "idade": 2,
+    "dono_id": 1
 }
