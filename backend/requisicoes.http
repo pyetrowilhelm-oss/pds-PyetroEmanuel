@@ -4,6 +4,15 @@ GET http://localhost:5000/donos
 ### Buscar um dono pelo id
 GET http://localhost:5000/donos/1
 
+### Buscar um dono e a lista de pets dele
+GET http://localhost:5000/donos/1
+
+### Listar os pets de um dono
+GET http://localhost:5000/donos/1/pets
+
+### Dono inexistente (deve retornar 404)
+GET http://localhost:5000/donos/999/pets
+
 ### Cadastrar um novo dono
 POST http://localhost:5000/donos
 Content-Type: application/json
